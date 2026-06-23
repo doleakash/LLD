@@ -1,4 +1,17 @@
-package PACKAGE_NAME;
+public enum EDenomination {
+    ONE(1),
+    TWO(2),
+    FIVE(5),
+    TEN(10);
 
-public class EDenomination {
+    private final int value;
+
+    EDenomination(int value){
+        this.value = value;
+    }
+
+    public int getValue(){
+        return value;
+    }
+
 }

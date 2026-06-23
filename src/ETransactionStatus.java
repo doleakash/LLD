@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
-
-public class ETransactionStatus {
+public enum ETransactionStatus {
+    SUCCESS,
+    CANCELLED,
+    PENDING,
 }

@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
-
-public class EPaymentMode {
+public enum EPaymentMode {
+    COIN,
+    CASH,
+    CARD
 }
