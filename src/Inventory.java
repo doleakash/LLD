@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Inventory {
@@ -6,40 +8,38 @@ public class Inventory {
 
     public Inventory() {
         inventoryItems = new HashMap<>();
+    };
+
+    public void addStock(InventoryItem item, int quantity){
+        inventoryItems.put(item, inventoryItems.getOrDefault(item,0) + quantity);
     }
 
-    public void addItem(InventoryItem item, int quantity){
-        inventoryItems.put(item, quantity);
-    }
-
-
-    public Map<InventoryItem, Integer> displayItems(){
-        return inventoryItems;
-    }
-
-
-    public InventoryItem findItem(int id){
-        for(InventoryItem item: inventoryItems.keySet()){
-            if(item.getId() == id){
-                return item;
-            }
-        }
-        return null;
-    }
-
+    public int getStock(InventoryItem item){
+        return inventoryItems.getOrDefault(item,0);
+    };
 
     public boolean checkAvailability(InventoryItem item){
-        return inventoryItems.getOrDefault(item, 0) > 0;
-    }
+        return inventoryItems.getOrDefault(item,0) > 0;
+    };
 
-
-    public void decrementStock(InventoryItem item){
-        Integer quantity = inventoryItems.get(item);
-
-        if(quantity == null || quantity <= 0){
-            throw new RuntimeException("Item out of stock");
+    public void decrementStock(InventoryItem item, int quantity){
+        Integer stock = inventoryItems.getOrDefault(item,0);
+        if (stock < quantity) {
+            throw new RuntimeException("Insufficient stock");
         }
-        System.out.println("item name: " + item.getName() + " quantity: " + inventoryItems.get(item));
-        inventoryItems.put(item,quantity-1);
-    }
+        inventoryItems.put(item, stock - quantity);
+    };
+
+
+    public List<InventoryItem> getAvailableProducts(){
+        List<InventoryItem> items = new ArrayList<>();
+        for(Map.Entry<InventoryItem,Integer> entry : inventoryItems.entrySet()){
+            if(entry.getValue() > 0){
+                items.add(entry.getKey());
+            }
+        }
+        return items;
+    };
+
+
 }
