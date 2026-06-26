@@ -11,7 +11,7 @@ public class InventoryItem {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Press " + id + " for : " + name + "," + " price: " + price;
     }
 
@@ -19,11 +19,11 @@ public class InventoryItem {
         return id;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public int getPrice(){
+    public int getPrice() {
         return price;
     }
 

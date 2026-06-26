@@ -1,15 +1,10 @@
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class VendingMachine {
     private final Inventory inventory;
     private final CashInventory cashInventory;
-    private int insertedAmount;
-
-    private final Map<EDenomination, Integer> insertedCash;
-
-    private InventoryItem selectedItem;
-
     private EMachineState machineState;
     private Transaction currentTransaction;
 
@@ -17,57 +12,68 @@ public class VendingMachine {
     public VendingMachine(Inventory inventory, CashInventory cashInventory) {
         this.inventory = inventory;
         this.cashInventory = cashInventory;
-        this.insertedCash = new HashMap<>();
     }
 
-    public void selectItem(InventoryItem item){
-        if(!inventory.checkAvailability(item)){
+    public List<InventoryItem> displayItems() {
+        return inventory.getAvailableProducts();
+    }
+
+    public void selectItem(int id) {
+        InventoryItem item = inventory.getItemById(id);
+        if (item == null) {
+            throw new RuntimeException("Invalid item");
+        }
+        if (!inventory.checkAvailability(item)) {
             throw new RuntimeException("Invalid item or out of stock");
         }
-        this.selectedItem = item;
+        currentTransaction = new Transaction(item);
     }
 
-    public void insertMoney(EDenomination denomination, int count){
-        if (count <= 0) {
-            throw new RuntimeException("Invalid count");
+    private void resetTransaction() {
+        if(currentTransaction == null){
+            throw new RuntimeException("Select an item first");
         }
-        this.insertedAmount += denomination.getValue() * count;
-        insertedCash.put(denomination,insertedCash.getOrDefault(denomination,0)+count);
+        currentTransaction = null;
+    }
+
+    public void insertMoney(EDenomination denomination) {
+        currentTransaction.addMoney(denomination);
     }
 
 
-    public int purchase(){
-        if(selectedItem == null){
-            throw new RuntimeException("No item selected");
+    public PurchaseResult purchase() {
+        if (!currentTransaction.isPaymentSufficient()) {
+            throw new RuntimeException("Insufficient Inserted Amount");
         }
-        if(!inventory.checkAvailability(selectedItem)){
+
+        if (!inventory.checkAvailability(currentTransaction.getSelectedItem())) {
             throw new RuntimeException("Item out of stock");
         }
-        if(insertedAmount < selectedItem.getPrice()){
-            throw new RuntimeException("Insufficient Amount Inserted");
+
+        inventory.decrementStock(currentTransaction.getSelectedItem(), 1);
+
+        Map<EDenomination, Integer> insertedCash = currentTransaction.getInsertedCash();
+        for (Map.Entry<EDenomination, Integer> entry : insertedCash.entrySet()) {
+            cashInventory.addCash(entry.getKey(), entry.getValue());
         }
 
-        inventory.decrementStock(selectedItem,1);
+        PurchaseResult purchaseResult = new PurchaseResult();
+        purchaseResult.setChange(cashInventory.dispenseChange(currentTransaction.getChangeAmount()));
+        purchaseResult.setItem(currentTransaction.getSelectedItem());
 
-        for(Map.Entry<EDenomination,Integer> entry: insertedCash.entrySet()){
-            cashInventory.addCash(entry.getKey(),entry.getValue());
-        }
+        currentTransaction.complete();
+        resetTransaction();
 
-        int change = insertedAmount - selectedItem.getPrice();
-
-        selectedItem = null;
-        insertedAmount = 0;
-        insertedCash.clear();
-
-        return change;
+        return purchaseResult;
     }
 
-    public Map<EDenomination,Integer> refund(){
-        Map<EDenomination,Integer> refundCash = new HashMap<>(insertedCash);
+    public Map<EDenomination, Integer> refund() {
+        currentTransaction.cancel();
 
-        selectedItem = null;
-        insertedAmount = 0;
-        insertedCash.clear();
+        Map<EDenomination, Integer> refundCash = currentTransaction.getInsertedCash();
+
+        resetTransaction();
+
         return refundCash;
     }
 
