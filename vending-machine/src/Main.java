@@ -1,4 +1,4 @@
-import java.util.List;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -12,19 +12,23 @@ public class Main {
 
             System.out.println("\nAvailable Products:");
             for (InventoryItem item : vendingMachine.displayItems()) {
-                System.out.println(
-                        item.getId() + ". "
-                                + item.getName()
-                                + " - ₹" + item.getPrice()
-                );
+                System.out.println(item.getId() + ". " + item.getName() + " - ₹" + item.getPrice());
             }
 
             System.out.println("\nEnter Product Id (-1 to exit):");
-            int id = scanner.nextInt();
+            int id;
 
+            try {
+                id = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Please enter a valid number.");
+                scanner.next(); // consume the invalid token
+                continue;
+            }
             if (id == -1) {
                 break;
             }
+
 
             try {
 
@@ -39,9 +43,27 @@ public class Main {
                 while (true) {
 
                     System.out.println("Insert denomination (0 to finish):");
-                    int input = scanner.nextInt();
+                    int input;
+
+                    try {
+                        input = scanner.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Please enter a valid denomination.");
+                        scanner.next();
+                        continue;
+                    }
 
                     if (input == 0) {
+                        PurchaseResult result = vendingMachine.purchase();
+
+                        System.out.println("Dispensed: " + result.getItem().getName());
+
+                        System.out.println("Change:");
+
+                        for (Map.Entry<EDenomination, Integer> entry : result.getChange().entrySet()) {
+                            System.out.println(entry.getKey().getValue() + " x " + entry.getValue());
+                        }
+
                         break;
                     }
 
@@ -62,47 +84,8 @@ public class Main {
                     vendingMachine.insertMoney(selectedDenomination);
                 }
 
-                PurchaseResult result = vendingMachine.purchase();
-
-                System.out.println("\nProduct Dispensed: "
-                        + result.getItem().getName());
-
-                System.out.println("Change Returned:");
-
-                for (Map.Entry<EDenomination, Integer> entry :
-                        result.getChange().entrySet()) {
-
-                    System.out.println(
-                            entry.getKey().getValue()
-                                    + " x "
-                                    + entry.getValue()
-                    );
-                }
-
             } catch (RuntimeException e) {
-
                 System.out.println(e.getMessage());
-
-                try {
-                    Map<EDenomination, Integer> refund =
-                            vendingMachine.refund();
-
-                    if (!refund.isEmpty()) {
-                        System.out.println("Refund:");
-
-                        for (Map.Entry<EDenomination, Integer> entry :
-                                refund.entrySet()) {
-
-                            System.out.println(
-                                    entry.getKey().getValue()
-                                            + " x "
-                                            + entry.getValue()
-                            );
-                        }
-                    }
-
-                } catch (Exception ignored) {
-                }
             }
         }
 
@@ -111,18 +94,8 @@ public class Main {
 
 
     private static VendingMachine getVendingMachine() {
-        InventoryItem chocolate =
-                new InventoryItem(
-                        1,
-                        "Chocolate",
-                        30
-                );
-        InventoryItem coke =
-                new InventoryItem(
-                        2,
-                        "Coke",
-                        20
-                );
+        InventoryItem chocolate = new InventoryItem(1, "Chocolate", 30);
+        InventoryItem coke = new InventoryItem(2, "Coke", 20);
 
         Inventory inventory = new Inventory();
         inventory.addStock(chocolate, 10);

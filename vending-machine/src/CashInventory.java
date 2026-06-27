@@ -8,10 +8,6 @@ public class CashInventory {
         cashInventory = new HashMap<>();
     }
 
-    public Map<EDenomination, Integer> getDenomination() {
-        return cashInventory;
-    }
-
     public void addCash(EDenomination denomination, Integer count) {
         cashInventory.put(denomination, cashInventory.getOrDefault(denomination, 0) + count);
     }
@@ -22,10 +18,6 @@ public class CashInventory {
             throw new RuntimeException("Insufficient cash");
         }
         cashInventory.put(denomination, available - count);
-    }
-
-    public int getCount(EDenomination denomination) {
-        return cashInventory.getOrDefault(denomination, 0);
     }
 
     public Map<EDenomination, Integer> dispenseChange(int amount) {

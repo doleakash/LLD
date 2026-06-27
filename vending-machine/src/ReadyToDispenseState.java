@@ -1,9 +1,9 @@
 import java.util.Map;
 
-public class MoneyInsertedState implements MachineState {
+public class ReadyToDispenseState implements MachineState {
     private final VendingMachine vendingMachine;
 
-    public MoneyInsertedState(VendingMachine vendingMachine) {
+    public ReadyToDispenseState(VendingMachine vendingMachine) {
         this.vendingMachine = vendingMachine;
     }
 
@@ -53,9 +53,6 @@ public class MoneyInsertedState implements MachineState {
 
     @Override
     public Map<EDenomination, Integer> refund() {
-        vendingMachine.getCurrentTransaction().cancel();
-        Map<EDenomination, Integer> refundCash = vendingMachine.getCurrentTransaction().getInsertedCash();
-        vendingMachine.resetTransaction();
-        return refundCash;
+        return vendingMachine.cancelTransaction();
     }
 }

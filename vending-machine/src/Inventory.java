@@ -15,9 +15,6 @@ public class Inventory {
         inventoryItems.put(item, inventoryItems.getOrDefault(item, 0) + quantity);
     }
 
-    public int getStock(InventoryItem item) {
-        return inventoryItems.getOrDefault(item, 0);
-    }
 
     public boolean checkAvailability(InventoryItem item) {
         return inventoryItems.getOrDefault(item, 0) > 0;
