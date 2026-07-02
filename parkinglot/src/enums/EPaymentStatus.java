@@ -2,6 +2,7 @@ package enums;
 
 public enum EPaymentStatus {
     PENDING,
-    APPROVED,
+    SUCCESS,
     REJECTED,
+    FAILED,
 }

@@ -1,16 +1,16 @@
 package enums;
 
-public enum ESlotType {
+public enum EVehicleType {
     BIKE("BIKE"),
     CAR("CAR");
 
     private final String value;
 
-    ESlotType(String value){
+    EVehicleType(String value){
         this.value = value;
     }
 
-    public String getValue(){
+    public String getValue() {
         return value;
     }
 }
